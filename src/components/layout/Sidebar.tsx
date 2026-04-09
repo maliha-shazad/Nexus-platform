@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { DollarSign } from 'lucide-react';
 import { 
   Home, Building2, CircleDollarSign, Users, MessageCircle, 
   Bell, FileText, Settings, HelpCircle, Calendar, Video, Menu, X
@@ -57,6 +58,7 @@ export const Sidebar: React.FC = () => {
     { to: '/messages', icon: <MessageCircle size={20} />, text: 'Messages' },
     { to: '/notifications', icon: <Bell size={20} />, text: 'Notifications' },
     { to: '/documents', icon: <FileText size={20} />, text: 'Documents' },
+    { to: '/my-requests', icon: <DollarSign size={20} />, text: 'My Requests' },
   ];
   
   const investorItems = [
@@ -69,6 +71,7 @@ export const Sidebar: React.FC = () => {
     { to: '/notifications', icon: <Bell size={20} />, text: 'Notifications' },
     { to: '/documents', icon: <FileText size={20} />, text: 'Documents' },
     { to: '/deals', icon: <FileText size={20} />, text: 'Deals' },
+    { to: '/funding-requests', icon: <DollarSign size={20} />, text: 'Funding Requests' },
   ];
   
   const sidebarItems = user.role === 'entrepreneur' ? entrepreneurItems : investorItems;
@@ -81,7 +84,8 @@ export const Sidebar: React.FC = () => {
   const SidebarContent = () => (
     <>
       <div className="flex-1 py-4 overflow-y-auto">
-        <div className="px-3 space-y-1">
+        {/* Added sidebar-nav class for Guided Tour target */}
+        <div className="sidebar-nav px-3 space-y-1">
           {sidebarItems.map((item, index) => (
             <SidebarItem key={index} to={item.to} icon={item.icon} text={item.text} />
           ))}

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { UserRole } from '../../types';
+import { PasswordStrengthMeter } from '../../components/auth/PasswordStrengthMeter';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -14,6 +15,11 @@ export const RegisterPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('entrepreneur');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
+  const [tempName, setTempName] = useState('');
+  const [tempEmail, setTempEmail] = useState('');
+  const [tempPassword, setTempPassword] = useState('');
+  const [tempRole, setTempRole] = useState<UserRole>('entrepreneur');
   
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -28,12 +34,25 @@ export const RegisterPage: React.FC = () => {
       return;
     }
     
-    setIsLoading(true);
+    // Validate password strength
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
     
+    // Store credentials temporarily and show 2FA
+    setTempName(name);
+    setTempEmail(email);
+    setTempPassword(password);
+    setTempRole(role);
+    setShow2FA(true);
+  };
+  
+  const handle2FASuccess = async () => {
+    setIsLoading(true);
     try {
-      await register(name, email, password, role);
-      // Redirect based on user role
-      navigate(role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
+      await register(tempName, tempEmail, tempPassword, tempRole);
+      navigate(tempRole === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
     } catch (err) {
       setError((err as Error).message);
       setIsLoading(false);
@@ -132,6 +151,9 @@ export const RegisterPage: React.FC = () => {
               startAdornment={<Lock size={18} />}
             />
             
+            {/* Password Strength Meter */}
+            <PasswordStrengthMeter password={password} />
+            
             <Input
               label="Confirm password"
               type="password"
@@ -141,6 +163,10 @@ export const RegisterPage: React.FC = () => {
               fullWidth
               startAdornment={<Lock size={18} />}
             />
+            
+            {confirmPassword && password !== confirmPassword && (
+              <p className="text-red-500 text-sm -mt-2">Passwords do not match</p>
+            )}
             
             <div className="flex items-center">
               <input
@@ -166,6 +192,7 @@ export const RegisterPage: React.FC = () => {
               type="submit"
               fullWidth
               isLoading={isLoading}
+              disabled={password !== confirmPassword || password.length < 8}
             >
               Create account
             </Button>
@@ -192,6 +219,56 @@ export const RegisterPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* 2FA Modal for Registration */}
+      {show2FA && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center mb-4">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Mail size={32} className="text-primary-600" />
+              </div>
+              <h3 className="text-xl font-bold">Verify Your Email</h3>
+              <p className="text-gray-500 text-sm mt-1">
+                We've sent a verification code to {tempEmail}
+              </p>
+            </div>
+            
+            <div className="flex justify-center gap-2 mb-6">
+              <input
+                type="text"
+                placeholder="6-digit code"
+                className="w-full p-3 text-center text-xl font-bold border-2 rounded-lg focus:outline-none focus:border-primary-500"
+                id="otpCode"
+              />
+            </div>
+            
+            <p className="text-xs text-gray-400 text-center mb-4">
+              Demo mode: Enter any 6-digit number (e.g., 123456)
+            </p>
+            
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => setShow2FA(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  const otp = (document.getElementById('otpCode') as HTMLInputElement).value;
+                  if (otp.length === 6 && /^\d+$/.test(otp)) {
+                    handle2FASuccess();
+                  } else {
+                    setError('Invalid verification code');
+                    setShow2FA(false);
+                  }
+                }} 
+                className="flex-1"
+              >
+                Verify
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

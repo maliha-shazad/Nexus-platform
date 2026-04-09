@@ -34,6 +34,8 @@ import { CalendarPage } from './pages/calendar/CalendarPage';
 
 // Video Call Page
 import { VideoCallPage } from './pages/video/VideoCallPage';
+import { FundingRequestsPage } from './pages/funding/FundingRequestsPage';
+import { MyRequestsPage } from './pages/funding/MyRequestsPage';
 
 function App() {
   return (
@@ -44,11 +46,19 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
+          <Route path="/funding-requests" element={<DashboardLayout />}>
+  <Route index element={<FundingRequestsPage />} />
+</Route>
+
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route path="entrepreneur" element={<EntrepreneurDashboard />} />
             <Route path="investor" element={<InvestorDashboard />} />
           </Route>
+          
+          <Route path="/my-requests" element={<DashboardLayout />}>
+  <Route index element={<MyRequestsPage />} />
+</Route>
 
           {/* Profile Routes */}
           <Route path="/profile" element={<DashboardLayout />}>

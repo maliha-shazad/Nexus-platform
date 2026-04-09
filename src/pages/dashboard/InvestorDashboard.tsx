@@ -8,6 +8,7 @@ import { EntrepreneurCard } from '../../components/entrepreneur/EntrepreneurCard
 import { useAuth } from '../../context/AuthContext';
 import { entrepreneurs } from '../../data/users';
 import { getRequestsFromInvestor } from '../../data/collaborationRequests';
+import { WalletCard } from '../../components/payments/WalletCard';
 
 export const InvestorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -109,8 +110,8 @@ export const InvestorDashboard: React.FC = () => {
         </div>
       </div>
       
-      {/* Stats summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Stats summary - Added dashboard-cards class for tour */}
+      <div className="dashboard-cards grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-primary-50 border border-primary-100">
           <CardBody>
             <div className="flex items-center">
@@ -156,35 +157,42 @@ export const InvestorDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Confirmed Meetings Section */}
-      <Card>
-        <CardHeader className="flex justify-between items-center">
-          <h2 className="text-lg font-medium text-gray-900">Confirmed Meetings</h2>
-          <Link to="/calendar" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-            View Calendar →
-          </Link>
-        </CardHeader>
-        <CardBody>
-          {confirmedMeetings.length > 0 ? (
-            <div className="space-y-3">
-              {confirmedMeetings.slice(0, 3).map((meeting: any) => (
-                <div key={meeting.id} className="p-3 bg-green-50 rounded-lg">
-                  <p className="font-medium text-sm">{meeting.title}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(meeting.start).toLocaleString()}
-                  </p>
-                  <p className="text-xs text-gray-500">With: {meeting.attendeeName}</p>
-                </div>
-              ))}
-              {confirmedMeetings.length > 3 && (
-                <p className="text-xs text-gray-500 text-center">+{confirmedMeetings.length - 3} more</p>
-              )}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-sm">No confirmed meetings yet</p>
-          )}
-        </CardBody>
-      </Card>
+      {/* Wallet Section - Added wallet-card class for tour */}
+      <div className="wallet-card">
+        <WalletCard userId={user.id} userRole={user.role} userName={user.name} />
+      </div>
+
+      {/* Confirmed Meetings Section - Added confirmed-meetings class for tour */}
+      <div className="confirmed-meetings">
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <h2 className="text-lg font-medium text-gray-900">Confirmed Meetings</h2>
+            <Link to="/calendar" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+              View Calendar →
+            </Link>
+          </CardHeader>
+          <CardBody>
+            {confirmedMeetings.length > 0 ? (
+              <div className="space-y-3">
+                {confirmedMeetings.slice(0, 3).map((meeting: any) => (
+                  <div key={meeting.id} className="p-3 bg-green-50 rounded-lg">
+                    <p className="font-medium text-sm">{meeting.title}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(meeting.start).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">With: {meeting.attendeeName}</p>
+                  </div>
+                ))}
+                {confirmedMeetings.length > 3 && (
+                  <p className="text-xs text-gray-500 text-center">+{confirmedMeetings.length - 3} more</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No confirmed meetings yet</p>
+            )}
+          </CardBody>
+        </Card>
+      </div>
 
       {/* Entrepreneurs grid */}
       <div>

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { UserRole } from '../../types';
+import { OTPInput } from '../../components/auth/OTPInput';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,10 @@ export const LoginPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('entrepreneur');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
+  const [tempEmail, setTempEmail] = useState('');
+  const [tempPassword, setTempPassword] = useState('');
+  const [tempRole, setTempRole] = useState<UserRole>('entrepreneur');
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -19,12 +24,21 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setIsLoading(true);
     
+    // Store credentials temporarily
+    setTempEmail(email);
+    setTempPassword(password);
+    setTempRole(role);
+    
+    // Show 2FA modal instead of logging in directly
+    setShow2FA(true);
+  };
+  
+  const handle2FASuccess = async () => {
+    setIsLoading(true);
     try {
-      await login(email, password, role);
-      // Redirect based on user role
-      navigate(role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
+      await login(tempEmail, tempPassword, tempRole);
+      navigate(tempRole === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
     } catch (err) {
       setError((err as Error).message);
       setIsLoading(false);
@@ -204,6 +218,19 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* 2FA Modal */}
+      {show2FA && (
+        <OTPInput
+          onVerify={(success) => {
+            if (success) {
+              handle2FASuccess();
+            }
+            setShow2FA(false);
+          }}
+          onCancel={() => setShow2FA(false)}
+        />
+      )}
     </div>
   );
 };

@@ -11,11 +11,11 @@ import { CollaborationRequest } from '../../types';
 import { getRequestsForEntrepreneur } from '../../data/collaborationRequests';   
 import { investors } from '../../data/users';
 
-
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
- const [recommendedInvestors] = useState(investors.slice(0, 3));
+  const [recommendedInvestors] = useState(investors.slice(0, 3));
+
   useEffect(() => {
     if (user) {
       // Load collaboration requests
@@ -35,6 +35,18 @@ export const EntrepreneurDashboard: React.FC = () => {
   if (!user) return null;
   
   const pendingRequests = collaborationRequests.filter(req => req.status === 'pending');
+
+  // Get confirmed meetings from localStorage
+  const getConfirmedMeetings = () => {
+    const savedMeetings = localStorage.getItem(`meetings_${user.id}`);
+    if (savedMeetings) {
+      const meetings = JSON.parse(savedMeetings);
+      return meetings.filter((m: any) => m.status === 'accepted');
+    }
+    return [];
+  };
+
+  const confirmedMeetings = getConfirmedMeetings();
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -91,7 +103,7 @@ export const EntrepreneurDashboard: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-accent-700">Upcoming Meetings</p>
-                <h3 className="text-xl font-semibold text-accent-900">2</h3>     
+                <h3 className="text-xl font-semibold text-accent-900">{confirmedMeetings.length}</h3>
               </div>
             </div>
           </CardBody>
@@ -111,7 +123,8 @@ export const EntrepreneurDashboard: React.FC = () => {
           </CardBody>
         </Card>
       </div>
-      {/* Confirmed Meetings Section - Only show accepted meetings */}
+
+      {/* Confirmed Meetings Section */}
       <Card>
         <CardHeader className="flex justify-between items-center">
           <h2 className="text-lg font-medium text-gray-900">Confirmed Meetings</h2>
@@ -120,32 +133,24 @@ export const EntrepreneurDashboard: React.FC = () => {
           </Link>
         </CardHeader>
         <CardBody>
-          {(() => {
-            const savedMeetings = localStorage.getItem(`meetings_${user.id}`);
-            if (savedMeetings) {
-              const meetings = JSON.parse(savedMeetings);
-              const confirmedMeetings = meetings.filter((m: any) => m.status === 'accepted');
-              if (confirmedMeetings.length > 0) {
-                return (
-                  <div className="space-y-3">
-                    {confirmedMeetings.slice(0, 3).map((meeting: any) => (
-                      <div key={meeting.id} className="p-3 bg-green-50 rounded-lg">
-                        <p className="font-medium text-sm">{meeting.title}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(meeting.start).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500">With: {meeting.attendeeName}</p>
-                      </div>
-                    ))}
-                    {confirmedMeetings.length > 3 && (
-                      <p className="text-xs text-gray-500 text-center">+{confirmedMeetings.length - 3} more</p>
-                    )}
-                  </div>
-                );
-              }
-            }
-            return <p className="text-gray-500 text-sm">No confirmed meetings yet</p>;
-          })()}
+          {confirmedMeetings.length > 0 ? (
+            <div className="space-y-3">
+              {confirmedMeetings.slice(0, 3).map((meeting: any) => (
+                <div key={meeting.id} className="p-3 bg-green-50 rounded-lg">
+                  <p className="font-medium text-sm">{meeting.title}</p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(meeting.start).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500">With: {meeting.attendeeName}</p>
+                </div>
+              ))}
+              {confirmedMeetings.length > 3 && (
+                <p className="text-xs text-gray-500 text-center">+{confirmedMeetings.length - 3} more</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">No confirmed meetings yet</p>
+          )}
         </CardBody>
       </Card>
 

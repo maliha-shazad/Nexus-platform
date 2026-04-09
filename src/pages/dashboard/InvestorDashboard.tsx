@@ -4,12 +4,10 @@ import { Users, PieChart, Filter, Search, PlusCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
- // import { Badge } from '../../components/ui/Badge';
 import { EntrepreneurCard } from '../../components/entrepreneur/EntrepreneurCard';
 import { useAuth } from '../../context/AuthContext';
 import { entrepreneurs } from '../../data/users';
 import { getRequestsFromInvestor } from '../../data/collaborationRequests';
-
 
 export const InvestorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -20,7 +18,18 @@ export const InvestorDashboard: React.FC = () => {
 
   // Get collaboration requests sent by this investor
   const sentRequests = getRequestsFromInvestor(user.id);
- 
+
+  // Get confirmed meetings from localStorage
+  const getConfirmedMeetings = () => {
+    const savedMeetings = localStorage.getItem(`meetings_${user.id}`);
+    if (savedMeetings) {
+      const meetings = JSON.parse(savedMeetings);
+      return meetings.filter((m: any) => m.status === 'accepted');
+    }
+    return [];
+  };
+
+  const confirmedMeetings = getConfirmedMeetings();
 
   // Filter entrepreneurs based on search and industry filters
   const filteredEntrepreneurs = entrepreneurs.filter(entrepreneur => {
@@ -83,17 +92,17 @@ export const InvestorDashboard: React.FC = () => {
             <span className="text-sm font-medium text-gray-700">Filter by:</span>
             <div className="flex flex-wrap gap-2">
               {industries.map(industry => (
-               <button
-  key={industry}
-  onClick={() => toggleIndustry(industry)}
-  className={`px-2 py-1 text-xs rounded-full cursor-pointer transition-colors ${
-    selectedIndustries.includes(industry) 
-      ? 'bg-primary-100 text-primary-700' 
-      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-  }`}
->
-  {industry}
-</button>
+                <button
+                  key={industry}
+                  onClick={() => toggleIndustry(industry)}
+                  className={`px-2 py-1 text-xs rounded-full cursor-pointer transition-colors ${
+                    selectedIndustries.includes(industry) 
+                      ? 'bg-primary-100 text-primary-700' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {industry}
+                </button>
               ))}
             </div>
           </div>
@@ -156,32 +165,24 @@ export const InvestorDashboard: React.FC = () => {
           </Link>
         </CardHeader>
         <CardBody>
-          {(() => {
-            const savedMeetings = localStorage.getItem(`meetings_${user.id}`);
-            if (savedMeetings) {
-              const meetings = JSON.parse(savedMeetings);
-              const confirmedMeetings = meetings.filter((m: any) => m.status === 'accepted');
-              if (confirmedMeetings.length > 0) {
-                return (
-                  <div className="space-y-3">
-                    {confirmedMeetings.slice(0, 3).map((meeting: any) => (
-                      <div key={meeting.id} className="p-3 bg-green-50 rounded-lg">
-                        <p className="font-medium text-sm">{meeting.title}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(meeting.start).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500">With: {meeting.attendeeName}</p>
-                      </div>
-                    ))}
-                    {confirmedMeetings.length > 3 && (
-                      <p className="text-xs text-gray-500 text-center">+{confirmedMeetings.length - 3} more</p>
-                    )}
-                  </div>
-                );
-              }
-            }
-            return <p className="text-gray-500 text-sm">No confirmed meetings yet</p>;
-          })()}
+          {confirmedMeetings.length > 0 ? (
+            <div className="space-y-3">
+              {confirmedMeetings.slice(0, 3).map((meeting: any) => (
+                <div key={meeting.id} className="p-3 bg-green-50 rounded-lg">
+                  <p className="font-medium text-sm">{meeting.title}</p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(meeting.start).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500">With: {meeting.attendeeName}</p>
+                </div>
+              ))}
+              {confirmedMeetings.length > 3 && (
+                <p className="text-xs text-gray-500 text-center">+{confirmedMeetings.length - 3} more</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">No confirmed meetings yet</p>
+          )}
         </CardBody>
       </Card>
 

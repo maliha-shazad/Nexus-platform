@@ -3,8 +3,10 @@ import { Card, CardBody } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Video, VideoOff, Mic, MicOff, PhoneOff, Monitor, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export const VideoCallPage: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [isInCall, setIsInCall] = useState(false);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
@@ -12,6 +14,13 @@ export const VideoCallPage: React.FC = () => {
   
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated && !user) {
+      window.location.href = '/login';
+    }
+  }, [isAuthenticated, user]);
 
   // Cleanup when component unmounts
   useEffect(() => {
@@ -119,6 +128,11 @@ export const VideoCallPage: React.FC = () => {
     }
   };
 
+  // If not authenticated, show nothing (will redirect)
+  if (!isAuthenticated && !user) {
+    return null;
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center flex-wrap gap-4">
@@ -126,11 +140,11 @@ export const VideoCallPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Video Call</h1>
           <p className="text-gray-600">Connect face-to-face with investors and entrepreneurs</p>
         </div>
-        <Link to="/dashboard">
-          <Button variant="outline" leftIcon={<ArrowLeft size={18} />}>
-            Back to Dashboard
-          </Button>
-        </Link>
+        <Link to={user?.role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor'}>
+  <Button variant="outline" leftIcon={<ArrowLeft size={18} />}>
+    Back to Dashboard
+  </Button>
+</Link>
       </div>
 
       <Card>
@@ -148,7 +162,7 @@ export const VideoCallPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Video container - Responsive */}
+              {/* Video container */}
               <div className="relative bg-gray-900 rounded-lg aspect-video flex items-center justify-center overflow-hidden">
                 <video
                   ref={localVideoRef}
@@ -162,13 +176,12 @@ export const VideoCallPage: React.FC = () => {
                     <VideoOff size={48} className="text-gray-500" />
                   </div>
                 )}
-                {/* Call status badge */}
                 <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-red-500 text-white px-2 py-1 rounded-lg text-xs sm:text-sm">
                   {isScreenSharing ? 'Screen Sharing' : 'Live Call'}
                 </div>
               </div>
 
-              {/* Call controls - Responsive grid */}
+              {/* Call controls */}
               <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
                 <button
                   onClick={toggleVideo}

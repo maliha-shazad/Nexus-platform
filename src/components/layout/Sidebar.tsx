@@ -16,6 +16,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
   return (
     <NavLink
       to={to}
+      onClick={() => {
+        // Close mobile menu on click (will be handled by parent)
+        const event = new CustomEvent('closeMobileMenu');
+        window.dispatchEvent(event);
+      }}
       className={({ isActive }) => 
         `flex items-center py-2.5 px-4 rounded-md transition-colors duration-200 ${
           isActive 
@@ -35,8 +40,14 @@ export const Sidebar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   if (!user) return null;
+
+  // Listen for close events
+  React.useEffect(() => {
+    const handleClose = () => setIsMobileMenuOpen(false);
+    window.addEventListener('closeMobileMenu', handleClose);
+    return () => window.removeEventListener('closeMobileMenu', handleClose);
+  }, []);
   
-  // Define sidebar items based on user role
   const entrepreneurItems = [
     { to: '/dashboard/entrepreneur', icon: <Home size={20} />, text: 'Dashboard' },
     { to: '/profile/entrepreneur/' + user.id, icon: <Building2 size={20} />, text: 'My Startup' },
@@ -56,8 +67,8 @@ export const Sidebar: React.FC = () => {
     { to: '/video-call', icon: <Video size={20} />, text: 'Video Call' },
     { to: '/messages', icon: <MessageCircle size={20} />, text: 'Messages' },
     { to: '/notifications', icon: <Bell size={20} />, text: 'Notifications' },
+    { to: '/documents', icon: <FileText size={20} />, text: 'Documents' },
     { to: '/deals', icon: <FileText size={20} />, text: 'Deals' },
-     { to: '/documents', icon: <FileText size={20} />, text: 'Documents' },  
   ];
   
   const sidebarItems = user.role === 'entrepreneur' ? entrepreneurItems : investorItems;
@@ -67,7 +78,6 @@ export const Sidebar: React.FC = () => {
     { to: '/help', icon: <HelpCircle size={20} />, text: 'Help & Support' },
   ];
 
-  // Sidebar content component
   const SidebarContent = () => (
     <>
       <div className="flex-1 py-4 overflow-y-auto">
@@ -103,7 +113,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile menu button */}
+      {/* Mobile menu button - only shows on small screens */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
@@ -111,14 +121,14 @@ export const Sidebar: React.FC = () => {
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block w-64 bg-white h-full border-r border-gray-200 fixed left-0 top-0">
+      {/* Desktop Sidebar - hidden on mobile, visible on desktop */}
+      <div className="hidden md:block w-64 bg-white h-screen border-r border-gray-200 fixed left-0 top-0 overflow-y-auto">
         <div className="h-full flex flex-col">
           <SidebarContent />
         </div>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar Overlay - only shows when menu is open */}
       {isMobileMenuOpen && (
         <>
           <div 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Wallet } from 'lucide-react';
 import { 
   Home, Building2, CircleDollarSign, Users, MessageCircle, 
   Bell, FileText, Settings, HelpCircle, Calendar, Video, Menu, X
@@ -18,7 +18,6 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
     <NavLink
       to={to}
       onClick={() => {
-        // Close mobile menu on click (will be handled by parent)
         const event = new CustomEvent('closeMobileMenu');
         window.dispatchEvent(event);
       }}
@@ -42,7 +41,6 @@ export const Sidebar: React.FC = () => {
   
   if (!user) return null;
 
-  // Listen for close events
   React.useEffect(() => {
     const handleClose = () => setIsMobileMenuOpen(false);
     window.addEventListener('closeMobileMenu', handleClose);
@@ -59,6 +57,7 @@ export const Sidebar: React.FC = () => {
     { to: '/notifications', icon: <Bell size={20} />, text: 'Notifications' },
     { to: '/documents', icon: <FileText size={20} />, text: 'Documents' },
     { to: '/my-requests', icon: <DollarSign size={20} />, text: 'My Requests' },
+    { to: '/wallet', icon: <Wallet size={20} />, text: 'Wallet' },
   ];
   
   const investorItems = [
@@ -72,6 +71,7 @@ export const Sidebar: React.FC = () => {
     { to: '/documents', icon: <FileText size={20} />, text: 'Documents' },
     { to: '/deals', icon: <FileText size={20} />, text: 'Deals' },
     { to: '/funding-requests', icon: <DollarSign size={20} />, text: 'Funding Requests' },
+    { to: '/wallet', icon: <Wallet size={20} />, text: 'Wallet' },
   ];
   
   const sidebarItems = user.role === 'entrepreneur' ? entrepreneurItems : investorItems;
@@ -84,7 +84,6 @@ export const Sidebar: React.FC = () => {
   const SidebarContent = () => (
     <>
       <div className="flex-1 py-4 overflow-y-auto">
-        {/* Added sidebar-nav class for Guided Tour target */}
         <div className="sidebar-nav px-3 space-y-1">
           {sidebarItems.map((item, index) => (
             <SidebarItem key={index} to={item.to} icon={item.icon} text={item.text} />
@@ -117,7 +116,6 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile menu button - only shows on small screens */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
@@ -125,14 +123,12 @@ export const Sidebar: React.FC = () => {
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Desktop Sidebar - hidden on mobile, visible on desktop */}
       <div className="hidden md:block w-64 bg-white h-screen border-r border-gray-200 fixed left-0 top-0 overflow-y-auto">
         <div className="h-full flex flex-col">
           <SidebarContent />
         </div>
       </div>
 
-      {/* Mobile Sidebar Overlay - only shows when menu is open */}
       {isMobileMenuOpen && (
         <>
           <div 

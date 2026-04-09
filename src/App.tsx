@@ -36,6 +36,7 @@ import { CalendarPage } from './pages/calendar/CalendarPage';
 import { VideoCallPage } from './pages/video/VideoCallPage';
 import { FundingRequestsPage } from './pages/funding/FundingRequestsPage';
 import { MyRequestsPage } from './pages/funding/MyRequestsPage';
+import { WalletPage } from './pages/wallet/WalletPage';
 
 function App() {
   return (
@@ -48,6 +49,9 @@ function App() {
 
           <Route path="/funding-requests" element={<DashboardLayout />}>
   <Route index element={<FundingRequestsPage />} />
+</Route>
+<Route path="/wallet" element={<DashboardLayout />}>
+  <Route index element={<WalletPage />} />
 </Route>
 
           {/* Dashboard Routes */}

@@ -10,7 +10,8 @@ import { useAuth } from '../../context/AuthContext';
 import { CollaborationRequest } from '../../types';
 import { getRequestsForEntrepreneur } from '../../data/collaborationRequests';   
 import { investors } from '../../data/users';
-import { WalletCard } from '../../components/payments/WalletCard';
+import { WalletBalance } from '../../components/payments/WalletBalance';
+
 
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -126,9 +127,7 @@ export const EntrepreneurDashboard: React.FC = () => {
       </div>
 
       {/* Wallet Section - Added wallet-card class for tour */}
-      <div className="wallet-card">
-        <WalletCard userId={user.id} userRole={user.role} userName={user.name} />
-      </div>
+    <WalletBalance userId={user.id} />
 
       {/* Confirmed Meetings Section - Added confirmed-meetings class for tour */}
       <div className="confirmed-meetings">

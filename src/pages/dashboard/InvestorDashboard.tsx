@@ -8,7 +8,7 @@ import { EntrepreneurCard } from '../../components/entrepreneur/EntrepreneurCard
 import { useAuth } from '../../context/AuthContext';
 import { entrepreneurs } from '../../data/users';
 import { getRequestsFromInvestor } from '../../data/collaborationRequests';
-import { WalletCard } from '../../components/payments/WalletCard';
+import { WalletBalance } from '../../components/payments/WalletBalance';
 
 export const InvestorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -158,9 +158,7 @@ export const InvestorDashboard: React.FC = () => {
       </div>
 
       {/* Wallet Section - Added wallet-card class for tour */}
-      <div className="wallet-card">
-        <WalletCard userId={user.id} userRole={user.role} userName={user.name} />
-      </div>
+      <WalletBalance userId={user.id} />
 
       {/* Confirmed Meetings Section - Added confirmed-meetings class for tour */}
       <div className="confirmed-meetings">

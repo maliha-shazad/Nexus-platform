@@ -132,7 +132,7 @@ export const CalendarPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Meeting Schedule</h1>
           <p className="text-gray-600">Manage your availability and schedule meetings</p>
         </div>
-        <Link to="/dashboard">
+        <Link to={`/dashboard/${user?.role}`}>
           <Button variant="outline" leftIcon={<ArrowLeft size={18} />}>
             Back to Dashboard
           </Button>

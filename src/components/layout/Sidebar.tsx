@@ -11,12 +11,14 @@ interface SidebarItemProps {
   to: string;
   icon: React.ReactNode;
   text: string;
+  onClick?: () => void;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text, onClick }) => {
   return (
     <NavLink
       to={to}
+      onClick={onClick}
       className={({ isActive }) => 
         `flex items-center py-2.5 px-4 rounded-md transition-colors duration-200 ${
           isActive 
@@ -31,7 +33,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, text }) => {
   );
 };
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onItemClick?: () => void; // For mobile sidebar to close after clicking
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ onItemClick }) => {
   const { user } = useAuth();
   
   if (!user) return null;
@@ -70,13 +76,25 @@ export const Sidebar: React.FC = () => {
     { to: '/help', icon: <HelpCircle size={20} />, text: 'Help & Support' },
   ];
   
+  const handleItemClick = () => {
+    if (onItemClick) {
+      onItemClick();
+    }
+  };
+  
   return (
-    <div className="w-64 bg-white h-full border-r border-gray-200 hidden md:block">
+    <div className="w-64 bg-white h-full border-r border-gray-200 md:block">
       <div className="h-full flex flex-col">
         <div className="flex-1 py-4 overflow-y-auto">
           <div className="px-3 space-y-1">
             {sidebarItems.map((item, index) => (
-              <SidebarItem key={index} to={item.to} icon={item.icon} text={item.text} />
+              <SidebarItem 
+                key={index} 
+                to={item.to} 
+                icon={item.icon} 
+                text={item.text} 
+                onClick={handleItemClick}
+              />
             ))}
           </div>
           
@@ -86,7 +104,13 @@ export const Sidebar: React.FC = () => {
             </h3>
             <div className="mt-2 space-y-1">
               {commonItems.map((item, index) => (
-                <SidebarItem key={index} to={item.to} icon={item.icon} text={item.text} />
+                <SidebarItem 
+                  key={index} 
+                  to={item.to} 
+                  icon={item.icon} 
+                  text={item.text} 
+                  onClick={handleItemClick}
+                />
               ))}
             </div>
           </div>
@@ -96,7 +120,11 @@ export const Sidebar: React.FC = () => {
           <div className="bg-gray-50 rounded-md p-3">
             <p className="text-xs text-gray-600">Need assistance?</p>
             <h4 className="text-sm font-medium text-gray-900 mt-1">Contact Support</h4>
-            <a href="mailto:support@businessnexus.com" className="mt-2 inline-flex items-center text-xs font-medium text-primary-600 hover:text-primary-500">
+            <a 
+              href="mailto:support@businessnexus.com" 
+              className="mt-2 inline-flex items-center text-xs font-medium text-primary-600 hover:text-primary-500"
+              onClick={handleItemClick}
+            >
               support@businessnexus.com
             </a>
           </div>
